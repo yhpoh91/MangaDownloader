@@ -1,9 +1,10 @@
 import re
 import os
 import string
+import zipfile
 from subprocess import check_output as co
 
-def downloadManga(url):
+def downloadManga(url, zip=False):
 	# Get Manga Info
 	mangaInfo = getMangaInfo(url)
 
@@ -41,6 +42,10 @@ def downloadManga(url):
 			if(numberOfImages == numberOfDownloadedFiles):
 				# Create Done File
 				open('.mangadone', 'a').close()
+
+				# Create Zip File
+				if(zip == True):
+					zipDirectory(name)
 		
 		# Return to Parent Directory
 		os.chdir("..")
@@ -115,3 +120,10 @@ def getMangaInfo(url):
 	mangaInfo = {"title":mangaTitle, "chapters":chapterURLsReturn}
 	return mangaInfo
 
+def zipDirectory(name):
+	zf = zipfile.ZipFile("../" + name + ".zip", "w")
+	files = [filename for filename in os.listdir('.') if os.path.isfile(filename)]
+	for fileItem in files:
+		if(fileItem != ".DS_Store" and fileItem != ".mangadone"):
+			zf.write(fileItem)
+	zf.close()
