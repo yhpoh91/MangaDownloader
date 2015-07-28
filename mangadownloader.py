@@ -37,7 +37,7 @@ def downloadManga(url):
 
 			# Check number of Images
 			numberOfImages = len(chapterImageURLs)
-			numberOfDownloadedFiles = len([filename for filename in os.listdir('.') if os.path.isfile(filename)])
+			numberOfDownloadedFiles = getNumberOfFiles()
 			if(numberOfImages == numberOfDownloadedFiles):
 				# Create Done File
 				open('.mangadone', 'a').close()
@@ -47,6 +47,13 @@ def downloadManga(url):
 
 	# Return to Parent Directory
 	os.chdir("..")
+
+def getNumberOfFiles():
+	numberOfFiles = len([filename for filename in os.listdir('.') if os.path.isfile(filename)])
+	if(os.path.exists(".DS_Store")):
+		numberOfFiles -= 1
+
+	return numberOfFiles
 
 def getPossibleFileName(name):
 	valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
