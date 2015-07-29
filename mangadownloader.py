@@ -4,7 +4,15 @@ import string
 import zipfile
 from subprocess import check_output as co
 
-def downloadManga(url, zip=False):
+# Save Home Directory
+homeDirectory = os.getcwd()
+
+# Get Manga
+mangaURL = raw_input("Manga URL: ")
+if(mangaURL != "GG"):
+	downloadManga(mangaURL)
+
+def downloadManga(url, zip=False, remove=False):
 	# Get Manga Info
 	mangaInfo = getMangaInfo(url)
 
@@ -46,6 +54,8 @@ def downloadManga(url, zip=False):
 				# Create Zip File
 				if(zip == True):
 					zipDirectory(name)
+					if(remove == True):
+						deleteImages()
 		
 		# Return to Parent Directory
 		os.chdir("..")
@@ -127,3 +137,13 @@ def zipDirectory(name):
 		if(fileItem != ".DS_Store" and fileItem != ".mangadone"):
 			zf.write(fileItem)
 	zf.close()
+
+def deleteImages():
+	filenames = [filename for filename in os.listdir('.') if os.path.isfile(filename)]
+	for filename in filenames:
+		if(filename != '.mangadone'):
+			os.remove(filename)
+
+def goToHomeDirectory():
+	os.chdir(homeDirectory)
+
