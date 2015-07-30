@@ -1,0 +1,10 @@
+Instruction for adding Manga Source:
+
+
+Get Chapter Image URL List
+--------------------------
+getChapterImages(url)
+
+Get Manga Information
+--------------------------
+getMangaInfo(url)

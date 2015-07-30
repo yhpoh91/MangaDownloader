@@ -4,6 +4,9 @@ import string
 import zipfile
 from subprocess import check_output as co
 
+import mangafox
+import kissmanga
+
 # Save Home Directory
 homeDirectory = os.getcwd()
 
@@ -12,9 +15,12 @@ mangaURL = raw_input("Manga URL: ")
 if(mangaURL != "GG"):
 	downloadManga(mangaURL)
 
-def downloadManga(url, zip=False, remove=False):
+def downloadManga(url, source="MF", zip=False, remove=False):
+	# Get Source
+	mangaSource = getMangaSource(source)
+
 	# Get Manga Info
-	mangaInfo = getMangaInfo(url)
+	mangaInfo = mangaSource.getMangaInfo(url)
 
 	# Create Manga Directory
 	title = getPossibleFileName(mangaInfo['title'])
@@ -39,7 +45,7 @@ def downloadManga(url, zip=False, remove=False):
 		if(not os.path.exists('.mangadone')):
 			# Get Chapter Images URLs
 			chapterURL = chapter['url']
-			chapterImageURLs = getChapterImages(chapterURL)
+			chapterImageURLs = mangaSource.getChapterImages(chapterURL)
 			
 			# Download Images
 			downloadChapter(chapterImageURLs)
@@ -90,46 +96,6 @@ def downloadChapter(imageURLs):
 			pass
 	pass
 
-def getChapterImages(url):
-	imageURLsReturn = []
-	try:
-		response = co("curl \"" + url + "\"", shell=True)
-		responseDataSplit = response.split('\n')
-
-		for line in responseDataSplit:
-			imageURL = re.findall("\s+lstImages.push\(\"(.+)\"\);", line)
-			if(len(imageURL) > 0):
-				imageURLsReturn.append(imageURL[0])
-	except Exception, e:
-		print str(e)
-		pass
-
-	return imageURLsReturn
-
-def getMangaInfo(url):
-	chapterURLs = []
-	chapterURLsReturn = []
-	mangaTitle = "gg"
-	try:
-		response = co("curl \"" + url + "\"", shell=True)
-		responseDataSplit = response.split('\n')
-
-		for line in responseDataSplit:
-			mangaTitles = re.findall("<a Class=\"bigChar\" href=\"(.+)\">(.+)</a>", line)
-			if(len(mangaTitles) > 0):\
-				mangaTitle = mangaTitles[0][1]
-
-			chapterURL = re.findall("<a href=\"(.+)\" title=\"Read (.+) online\">", line)
-			if(len(chapterURL) > 0):
-				chapterURLsReturn.append({"url":"http://kissmanga.com" + str(chapterURL[0][0]), "name":str(chapterURL[0][1])})
-	
-	except Exception, e:
-		print str(e)
-		pass
-
-	mangaInfo = {"title":mangaTitle, "chapters":chapterURLsReturn}
-	return mangaInfo
-
 def zipDirectory(name):
 	zf = zipfile.ZipFile("../" + name + ".zip", "w")
 	files = [filename for filename in os.listdir('.') if os.path.isfile(filename)]
@@ -146,4 +112,14 @@ def deleteImages():
 
 def goToHomeDirectory():
 	os.chdir(homeDirectory)
+
+def getMangaSource(source):
+	mangaSource = kissmanga
+	if source == "MF":
+		mangaSource = mangafox
+	elif source == "KM":
+		mangaSource = kissmanga
+
+	return mangaSource
+
 
